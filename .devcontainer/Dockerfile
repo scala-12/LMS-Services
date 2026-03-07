@@ -47,4 +47,6 @@ RUN node -v \
     && psql --version \
     && grpc_tools_node_protoc --version 
 
+EXPOSE 3000
+
 USER vscode
