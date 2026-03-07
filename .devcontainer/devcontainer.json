@@ -1,9 +1,10 @@
 {
     "name": "LMS services Container (Debian, Node, Java, Kotlin)",
-    "build": {
-        "dockerfile": "Dockerfile"
-    },
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
     "remoteUser": "vscode",
+    "workspaceFolder": "/workspace",
+
     "customizations": {
         "vscode": {
             "extensions": [
@@ -16,5 +17,5 @@
         }
     },
 
-    "forwardPorts": [3000]
+    "forwardPorts": [5432, 3000]
 }
