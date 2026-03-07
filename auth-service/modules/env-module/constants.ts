@@ -1,4 +1,4 @@
-import { EnvKey, EnvKeys } from "./types";
+import { EnvKey, EnvKeys, NodeEnvValue } from "./types";
 
 export const envProperties = {
   [EnvKey.JWT_SECRET_KEY_BASE64]: {
@@ -21,7 +21,7 @@ export const envProperties = {
   },
   [EnvKey.NODE_ENV]: {
     type: 'string',
-    enum: ['development', 'production', 'local'],
+    enum: Object.values(NodeEnvValue),
     default: 'development'
   },
   [EnvKey.DATABASE_URL]: {

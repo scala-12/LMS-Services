@@ -13,7 +13,13 @@ export type EnvKeys = {
   [EnvKey.JWT_PUBLIC_KEY_BASE64]: string,
   [EnvKey.JWT_REFRESH_EXPIRES_IN]: number,
   [EnvKey.JWT_ACCESS_EXPIRES_IN]: number,
-  [EnvKey.NODE_ENV]: string
+  [EnvKey.NODE_ENV]: NodeEnvValue
   [EnvKey.DATABASE_URL]: string
   [EnvKey.PORT]: number
+}
+
+export enum NodeEnvValue {
+  LOCAL = "local",
+  DEVELOPMENT = "development",
+  PRODUCTION = "production"
 }
