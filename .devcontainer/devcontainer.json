@@ -11,8 +11,7 @@
                 "ms-vscode.vscode-typescript-next",
                 "vscjava.vscode-java-pack",
                 "fwcd.kotlin",
-                "redhat.vscode-yaml",
-                "grpc.grpc-js"
+                "redhat.vscode-yaml"
             ]
         }
     }
