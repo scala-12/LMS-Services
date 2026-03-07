@@ -26,6 +26,11 @@ export const envProperties = {
   },
   [EnvKey.DATABASE_URL]: {
     type: 'string'
+  },
+  [EnvKey.PORT]: {
+    type: 'number',
+    description: "Application port",
+    default: 3000
   }
 } as const satisfies Record<EnvKey, unknown> satisfies Record<keyof EnvKeys, unknown>
 

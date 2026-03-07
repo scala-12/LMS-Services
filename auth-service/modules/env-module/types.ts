@@ -4,7 +4,8 @@ export enum EnvKey {
   JWT_REFRESH_EXPIRES_IN = 'JWT_REFRESH_EXPIRES_IN',
   JWT_ACCESS_EXPIRES_IN = 'JWT_ACCESS_EXPIRES_IN',
   NODE_ENV = 'NODE_ENV',
-  DATABASE_URL = 'DATABASE_URL'
+  DATABASE_URL = 'DATABASE_URL',
+  PORT = "PORT"
 }
 
 export type EnvKeys = {
@@ -14,4 +15,5 @@ export type EnvKeys = {
   [EnvKey.JWT_ACCESS_EXPIRES_IN]: number,
   [EnvKey.NODE_ENV]: string
   [EnvKey.DATABASE_URL]: string
+  [EnvKey.PORT]: number
 }
