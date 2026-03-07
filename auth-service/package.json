@@ -11,7 +11,9 @@
     "build": "tsc -p tsconfig.json",
     "start": "node build/app.js",
     "test": "node --test test/**/*.test.js",
-    "debug": "node --inspect -r tsx app.ts"
+    "debug": "node --inspect -r tsx app.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "keywords": [],
   "author": "",
@@ -27,16 +29,21 @@
     "@sinclair/typebox": "^0.34.33",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.45.1",
     "fastify": "^5.0.0",
     "fastify-cli": "^7.4.0",
     "fastify-plugin": "^5.0.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.20.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
-    "@types/node": "^22.15.19",
+    "@types/node": "^22.19.13",
+    "@types/pg": "^8.18.0",
+    "drizzle-kit": "^0.31.9",
     "mkdirp": "^3.0.1",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
