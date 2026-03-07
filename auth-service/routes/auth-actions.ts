@@ -1,6 +1,5 @@
 import { EmailTypebox, PasswordTypebox, UsernameTypebox } from '@/constants';
 import { TokenType } from '@/modules/jwt-module/types';
-import { clearJwtCookies, setJwtCookies } from '@/utils/cookies';
 import { createUnauthorizedError } from '@/utils/exceptions';
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance } from 'fastify';
@@ -24,7 +23,7 @@ export default async function (fastify: FastifyInstance) {
 
     fastify.log.debug({ username, email }, "Login successful");
 
-    const tokens = setJwtCookies(fastify, reply, user)
+    const tokens = fastify.jwt.setJwtCookies(reply, user)
     fastify.db.saveToken(user, tokens[TokenType.REFRESH])
 
     return reply.send({
@@ -45,7 +44,7 @@ export default async function (fastify: FastifyInstance) {
     }
     // await fastify.redis.set(`blacklist:${token}`, 'true', 'EX', Number(process.env.JWT_EXPIRES_IN));
 
-    clearJwtCookies(fastify, reply);
+    fastify.jwt.clearJwtCookies(reply);
     fastify.db.revokeToken(refreshToken)
 
     reply.send({

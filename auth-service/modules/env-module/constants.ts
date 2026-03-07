@@ -31,6 +31,11 @@ export const envProperties = {
     type: 'number',
     description: "Application port",
     default: 3000
+  },
+  [EnvKey.JWT_TOKEN_REFRESH_PATH]: {
+    type: "string",
+    description: "Path for token refresh",
+    default: "/api/auth/refresh"
   }
 } as const satisfies Record<EnvKey, unknown> satisfies Record<keyof EnvKeys, unknown>
 

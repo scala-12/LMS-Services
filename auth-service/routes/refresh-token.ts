@@ -1,5 +1,4 @@
 import { TokenType } from '@/modules/jwt-module/types';
-import { setJwtCookies } from '@/utils/cookies';
 import { createBadRequiestError, createUnauthorizedError } from '@/utils/exceptions';
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance } from 'fastify';
@@ -31,7 +30,7 @@ export default async function (fastify: FastifyInstance) {
     const user = await fastify.db.findUser({ userId })
     if (!user) throw createUnauthorizedError("User not exists");
 
-    const { [TokenType.REFRESH]: token } = setJwtCookies(fastify, reply, user);
+    const { [TokenType.REFRESH]: token } = fastify.jwt.setJwtCookies(reply, user);
     fastify.db.rotateToken(user, oldToken, token)
 
     return reply.send({
