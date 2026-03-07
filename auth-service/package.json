@@ -7,7 +7,6 @@
     "test": "test"
   },
   "scripts": {
-    "win:gen:proto": "rimraf ./generated && mkdirp ./generated && protoc --plugin=protoc-gen-ts_proto=\".\\node_modules\\.bin\\protoc-gen-ts_proto.cmd\" --ts_proto_out=generated --ts_proto_opt=outputServices=grpc-js -I ../shared/proto ../shared/proto/*.proto",
     "build": "tsc -p tsconfig.json",
     "start": "node build/app.js",
     "test": "node --test test/**/*.test.js",
