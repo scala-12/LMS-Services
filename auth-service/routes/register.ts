@@ -30,7 +30,7 @@ export default async function (fastify: FastifyInstance) {
         body.username = prepareString(body.username)!.replaceAll("@", "_").toLocaleLowerCase()
       }
     },
-  }, async ({ body }, { send }) => {
+  }, async ({ body }, reply) => {
     const { username = null, roles, email, password } = body
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
 
@@ -52,10 +52,12 @@ export default async function (fastify: FastifyInstance) {
       throw createForbiddenError("Provided data not allowed for registration")
     }
 
+    if (!user) throw createForbiddenError("User not created")
+
     // TODO отправка события в kafka для user-service
 
-    return send({
-      data: { success: true, email: user?.email, roles: user?.roles },
+    return reply.send({
+      data: { success: true, email: user.email, roles: user.roles, username: user.username },
       message: 'Register successful',
     });
   });
