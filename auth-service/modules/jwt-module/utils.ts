@@ -4,8 +4,8 @@ import { AccessToken, RefreshToken, TokenType, UserInfo, UserPayload } from "./t
 export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessToken | RefreshToken | null => {
   if (!payload || typeof payload !== 'object') return null;
 
-  const { username, email, roles, sub: id, type: tokenType } = payload as jwt.JwtPayload;
-  if (typeof id !== 'string') return null;
+  const { username, email, roles, sub: userId, type: tokenType } = payload as jwt.JwtPayload;
+  if (typeof userId !== 'string') return null;
 
   switch (tokenType) {
     case 'access':
@@ -17,7 +17,7 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
         ) return null
 
         const token: AccessToken = {
-          expired, id, username, email, roles,
+          expired, userId, username, email, roles,
           type: tokenType,
         };
         return token;
@@ -25,7 +25,7 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
     case 'refresh':
       {
         const token: RefreshToken = {
-          expired, id,
+          expired, userId,
           type: tokenType,
         };
         return token;
