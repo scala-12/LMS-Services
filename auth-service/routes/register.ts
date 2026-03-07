@@ -23,8 +23,12 @@ export default async function (fastify: FastifyInstance) {
       body: RegisterSchema
     },
     preValidation: async ({ body }) => {
-      body.email = body.email.toLowerCase();
-      body.username = prepareString(body.username)?.replaceAll("@", "_").toLocaleLowerCase()
+      if (body.email) {
+        body.email.toLowerCase();
+      }
+      if (body.username) {
+        body.username = prepareString(body.username)!.replaceAll("@", "_").toLocaleLowerCase()
+      }
     },
   }, async ({ body }, { send }) => {
     const { username = null, roles, email, password } = body

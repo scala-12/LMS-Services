@@ -12,8 +12,12 @@ export default async function (fastify: FastifyInstance) {
       body: AuthBodySchema
     },
     preValidation: async (req) => {
-      req.body.email = req.body.email?.toLowerCase();
-      req.body.username = req.body.username?.toLowerCase()
+      if (req.body.email) {
+        req.body.email = req.body.email?.toLowerCase();
+      }
+      if (req.body.username) {
+        req.body.username = req.body.username?.toLowerCase()
+      }
     },
   }, async ({ body }, reply) => {
     const { username, email, password } = body;
