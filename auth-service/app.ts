@@ -23,7 +23,7 @@ server.register(autoLoad, {
 
 server.register(autoLoad, {
   dir: path.join(__dirname, 'routes'),
-  options: { prefix: '/api/auth' }
+  options: { prefix: '/api' }
 });
 
 server.setErrorHandler((error, _, reply) => {
