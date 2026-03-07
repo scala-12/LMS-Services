@@ -2,7 +2,6 @@ import autoLoad from '@fastify/autoload';
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import path from 'path';
-import { EnvKey } from './modules/env-module/types';
 
 
 console.debug(".env init");
@@ -36,7 +35,7 @@ server.setErrorHandler((error, _, reply) => {
   });
 });
 
-const port = server.config[EnvKey.PORT];
+const port = parseInt(process.env.PORT!);
 server.listen({ port }, (err, address) => {
   if (err) {
     console.error(err)

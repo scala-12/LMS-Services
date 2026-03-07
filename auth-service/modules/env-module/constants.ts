@@ -29,8 +29,7 @@ export const envProperties = {
   },
   [EnvKey.PORT]: {
     type: 'number',
-    description: "Application port",
-    default: 3000
+    description: "Application port"
   },
   [EnvKey.JWT_TOKEN_REFRESH_PATH]: {
     type: "string",
@@ -40,5 +39,6 @@ export const envProperties = {
 } as const satisfies Record<EnvKey, unknown> satisfies Record<keyof EnvKeys, unknown>
 
 export const envRequired: EnvKey[] = [
-  EnvKey.DATABASE_URL
+  EnvKey.DATABASE_URL,
+  EnvKey.PORT
 ]
