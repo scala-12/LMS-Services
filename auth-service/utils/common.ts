@@ -8,5 +8,3 @@ export const prepareString = (...strings: unknown[]): string | null => {
 
   return null;
 }
-
-export const isLocalServer = () => process.env.NODE_ENV === 'local';

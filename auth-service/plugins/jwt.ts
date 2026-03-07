@@ -1,27 +1,31 @@
-import { JwtService } from '@/utils/jwt-utils';
+import { EnvKey } from '@/modules/env-module/types';
+import { JwtModule } from '@/modules/jwt-module';
 import fp from 'fastify-plugin';
-import fs from 'fs/promises';
-import path from 'path';
 
 export default fp(async function (fastify) {
-  console.debug("secret.pem read");
-  const secretKey = await fs.readFile(
-    path.join(process.env.JWT_SECRET_KEY_PATH as string),
-    'utf-8');
+  const keys: { public?: string; secret?: string } = {}
+  if (fastify.config[EnvKey.JWT_SECRET_KEY_BASE64]) {
+    keys.secret = Buffer
+      .from(fastify.config[EnvKey.JWT_SECRET_KEY_BASE64], "base64")
+      .toString("utf8");
+    keys.public = Buffer
+      .from(fastify.config[EnvKey.JWT_PUBLIC_KEY_BASE64], "base64")
+      .toString("utf8");
+  }
 
-  console.debug("public.pem read");
-  const publicKey = await fs.readFile(
-    path.join(process.env.JWT_PUBLIC_KEY_PATH as string),
-    'utf-8');
+  if (!keys.public || !keys.secret) throw new Error("JWT keys not provided")
 
-  const jwtService = new JwtService(
-    secretKey,
-    publicKey,
-    parseInt(process.env.JWT_EXPIRES_IN as string),
-    parseInt(process.env.JWT_REFRESH_EXPIRES_IN as string));
+  const jwtModule = new JwtModule(
+    fastify.log.child({ service: 'JwtModule' }),
+    keys.secret,
+    keys.public,
+    fastify.config.JWT_REFRESH_EXPIRES_IN,
+    fastify.config.JWT_ACCESS_EXPIRES_IN
+  );
 
-  fastify.decorate('jwt', jwtService);
-  console.debug('Jwt service decorated');
+  fastify.decorate('jwt', jwtModule);
+  fastify.log.debug('Jwt module decorated');
 }, {
-  name: 'jwt-plugin'
+  name: 'jwt-module',
+  dependencies: ['env-plugin']
 });
