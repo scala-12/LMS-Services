@@ -14,6 +14,7 @@ dotenv.config({ path: path.resolve(process.cwd(), `.env.tmp`) });
 
 const server = fastify({
   bodyLimit: 4 * 1024,
+  logger: true
 });
 
 server.register(autoLoad, {
