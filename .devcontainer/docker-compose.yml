@@ -11,6 +11,18 @@ services:
     user: vscode
     depends_on:
       - postgres
+    networks:
+      - devnet
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8090:80"
+    depends_on:
+      - devcontainer
+    networks:
+      - devnet
 
   postgres:
     image: postgres:16
@@ -23,6 +35,8 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - devnet
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dev -d microservices"]
@@ -33,3 +47,6 @@ services:
 
 volumes:
   postgres-data:
+
+networks:
+  devnet:
