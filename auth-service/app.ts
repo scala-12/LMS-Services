@@ -37,7 +37,7 @@ server.setErrorHandler((error, _, reply) => {
 });
 
 const port = parseInt(process.env.PORT!);
-server.listen({ port }, (err, address) => {
+server.listen({ port, host: "0.0.0.0" }, (err, address) => {
   if (err) {
     console.error(err)
     process.exit(1)
