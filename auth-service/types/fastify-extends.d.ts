@@ -1,9 +1,13 @@
 import { UserServiceClient } from '@/generated/user';
-import { JwtService } from '@/utils/jwt-utils';
+import { DbModule } from '@/modules/db-module';
+import { EnvKeys } from '@/modules/env-module/types';
+import { JwtModule } from '@/modules/jwt-module';
 
 declare module 'fastify' {
   interface FastifyInstance {
-    jwt: JwtService,
+    jwt: JwtModule,
+    config: EnvKeys,
+    db: DbModule;
     userGrpc: UserServiceClient,
     // redis: RedisClientType,
   }

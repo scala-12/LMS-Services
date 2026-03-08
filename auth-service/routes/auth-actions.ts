@@ -1,72 +1,88 @@
-import { UserInfoResponse } from '@/generated/user';
-import { prepareString } from '@/utils';
+import { EmailTypebox, PasswordTypebox, UsernameTypebox } from '@/constants';
+import { Credential } from '@/modules/db-module/types';
+import { TokenType } from '@/modules/jwt-module/types';
 import { createUnauthorizedError } from '@/utils/exceptions';
-import { clearJwtCookies, createMeta4ServiceRequest, setJwtCookies } from '@/utils/jwt-utils';
 import { Static, Type } from '@sinclair/typebox';
-import bcrypt from 'bcrypt';
-import { FastifyInstance } from 'fastify';
-
-const AuthForm = Type.Object({
-  username: Type.Optional(Type.String()),
-  email: Type.Optional(Type.String({ format: 'email' })),
-  password: Type.String({ minLength: 6 })
-})
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 export default async function (fastify: FastifyInstance) {
-  fastify.post<{
-    Body: Static<typeof AuthForm>
-  }>('/login', {
-    schema: {
-      body: AuthForm
+  const prepareAuthBody = async (req: FastifyRequest<{
+    Body: Static<typeof AuthBodySchema>;
+  }>
+  ) => {
+    if (req.body.email) {
+      req.body.email = req.body.email?.toLowerCase();
     }
-  }, async (request, reply) => {
-    let { username, email, password } = request.body;
-
-    password = prepareString(password) || '';
-    if (!password) {
-      throw createUnauthorizedError('Password not provided');
+    if (req.body.username) {
+      req.body.username = req.body.username?.toLowerCase()
     }
-    const usernameOrEmail = prepareString(username, email);
-    if (!usernameOrEmail) {
-      throw createUnauthorizedError('Username not provided');
-    }
+  }
 
-    const metadata = createMeta4ServiceRequest(fastify);
-    const user = await new Promise<UserInfoResponse>((resolve, reject) => {
-      console.debug(`Request to user-service (${usernameOrEmail})`);
-      fastify.userGrpc.findUserByEmailOrUsername({ usernameOrEmail }, metadata, (error, response) => {
-        if (error) {
-          console.debug(`Response from user-service: error (${usernameOrEmail}, ${error})`);
-          reject(error);
-        } else {
-          console.debug(`Response from user-service: success (${usernameOrEmail})`);
-          resolve(response);
-        }
-      });
-    });
+  const signInUser = async (
+    body: Static<typeof AuthBodySchema>,
+    callbackBeforeSend: (user: Credential) => { [TokenType.ACCESS]: string;[TokenType.REFRESH]?: string },
+    reply: FastifyReply
+  ) => {
+    const { username, email, password } = body;
 
-    const passwordValid = await bcrypt.compare(password, user.password);
-    if (!passwordValid) {
-      console.info(`Invalid password for ${usernameOrEmail}`);
-      throw createUnauthorizedError('Invalid credential');
-    }
+    const { error, user } = await fastify.db.checkUserLogin(password, body)
+    if (error || !user) throw createUnauthorizedError(error ?? "Auth error");
 
-    console.info(`Success auth for ${usernameOrEmail}`);
+    const data = callbackBeforeSend(user)
 
-    setJwtCookies(fastify, reply, user, 'both');
+    fastify.log.debug({ username, email }, "Login successful");
 
     return reply.send({
-      data: { success: true },
+      data: { ...data, success: true },
       message: 'Login successful',
     });
+  }
+
+  fastify.post<{
+    Body: Static<typeof AuthBodySchema>
+  }>('/login', {
+    schema: {
+      body: AuthBodySchema
+    },
+    preValidation: [prepareAuthBody],
+  }, async ({ body }, reply) => {
+    const callback = (user: Credential) => {
+      const tokens = fastify.jwt.setJwtCookies(reply, user)
+      fastify.db.saveToken(user, tokens[TokenType.REFRESH])
+      return tokens
+    }
+    return signInUser(body, callback, reply)
   });
 
-  fastify.post('/logout', async (_request, reply) => {
-    // const { access_token: accessToken, refresh_token: refreshToken } = request.cookies;
-    // const authHeader = request.headers.authorization;
+  fastify.post<{
+    Body: Static<typeof AuthBodySchema>
+  }>('/login-short', {
+    schema: {
+      body: AuthBodySchema
+    },
+    preValidation: [prepareAuthBody]
+  }, async ({ body }, reply) => {
+    const callback = (user: Credential) => {
+      const accessToken = fastify.jwt.createAccessShortToken(user)
+      return { [TokenType.ACCESS]: accessToken }
+    }
+    return signInUser(body, callback, reply)
+  })
+
+  fastify.post<{ Body: Static<typeof LogoutBodySchema> }>('/logout', {
+    schema: {
+      body: LogoutBodySchema
+    },
+  }, async ({ cookies, body }, reply) => {
+    let { [TokenType.REFRESH]: refreshToken } = cookies;
+    if (!refreshToken) {
+      refreshToken = body.refreshToken
+      if (!refreshToken) throw createUnauthorizedError("Refresh token not provided")
+    }
     // await fastify.redis.set(`blacklist:${token}`, 'true', 'EX', Number(process.env.JWT_EXPIRES_IN));
 
-    clearJwtCookies(reply, 'both');
+    fastify.jwt.clearJwtCookies(reply);
+    fastify.db.revokeToken(refreshToken)
 
     reply.send({
       data: { success: true },
@@ -74,3 +90,23 @@ export default async function (fastify: FastifyInstance) {
     });
   });
 }
+
+const AuthBodySchema = Type.Intersect([
+  Type.Object({
+    password: PasswordTypebox
+  }),
+  Type.Union([
+    Type.Object({
+      username: UsernameTypebox,
+      email: Type.Optional(Type.Never())
+    }),
+    Type.Object({
+      email: EmailTypebox,
+      username: Type.Optional(Type.Never())
+    })
+  ])
+])
+
+const LogoutBodySchema = Type.Object({
+  refreshToken: Type.Optional(Type.String({ minLength: 1 }))
+})

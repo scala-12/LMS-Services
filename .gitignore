@@ -62,3 +62,4 @@ pids/
 # Build output
 coverage/
 .env.tmp
+.env

@@ -14,6 +14,7 @@ dotenv.config({ path: path.resolve(process.cwd(), `.env.tmp`) });
 
 const server = fastify({
   bodyLimit: 4 * 1024,
+  logger: true
 });
 
 server.register(autoLoad, {
@@ -22,7 +23,7 @@ server.register(autoLoad, {
 
 server.register(autoLoad, {
   dir: path.join(__dirname, 'routes'),
-  options: { prefix: '/api/auth' }
+  options: { prefix: '/api' }
 });
 
 server.setErrorHandler((error, _, reply) => {
@@ -35,7 +36,7 @@ server.setErrorHandler((error, _, reply) => {
   });
 });
 
-const port = parseInt(process.env.PORT as string);
+const port = parseInt(process.env.PORT!);
 server.listen({ port }, (err, address) => {
   if (err) {
     console.error(err)
