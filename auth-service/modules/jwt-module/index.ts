@@ -36,14 +36,19 @@ export class JwtModule {
   #signToken = (
     tokenType: TokenType,
     user: UserInfo,
+    lifetime?: number
   ): string => {
     const payload = createTokenPayload(user, tokenType);
+    if (lifetime != null && lifetime < 0) {
+      this.#logger.error({ lifetime }, "Wrong lifitime value")
+      throw new Error("Wrong lifitime value")
+    }
     const opts: SignOptions = {
       algorithm: 'RS256',
       subject: user.userId,
-      expiresIn: tokenType === TokenType.REFRESH ?
+      expiresIn: lifetime ?? (tokenType === TokenType.REFRESH ?
         this.#refreshExpires
-        : this.#accessExpires
+        : this.#accessExpires)
     };
     this.#logger.debug({ user, tokenType }, 'Sign jwt');
 
@@ -93,6 +98,10 @@ export class JwtModule {
       sameSite: 'strict', // Защита от CSRF
       maxAge
     });
+  }
+
+  createAccessShortToken = (user: UserInfo) => {
+    return this.#signToken(TokenType.ACCESS, user, 15);
   }
 
   setJwtCookies = (
