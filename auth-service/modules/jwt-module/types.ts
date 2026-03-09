@@ -3,7 +3,7 @@ type WithUserId<TData> = TData & { userId: string; }
 export type UserPayload = {
   username: string | null;
   email: string;
-  roles: string[];
+  roles: Set<string>;
 }
 
 export type UserInfo = WithUserId<UserPayload>;
