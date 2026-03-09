@@ -17,7 +17,7 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
         ) return null
 
         const token: AccessToken = {
-          expired, userId, username, email, roles,
+          expired, userId, username, email, roles: new Set(roles),
           type: tokenType,
         };
         return token;
