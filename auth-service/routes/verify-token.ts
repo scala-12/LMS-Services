@@ -10,7 +10,7 @@ export default async function (fastify: FastifyInstance) {
       if (!token) throw createBadRequiestError("Access token not setted");
     }
 
-    const info = fastify.jwt.extractToken(token);
+    const info = fastify.jwt.decodeToken(token);
     if (info.type !== TokenType.ACCESS) {
       fastify.log.error({ tokenInto: info }, "Wrong token");
       throw createUnauthorizedError("Wrong token");

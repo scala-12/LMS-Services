@@ -1,5 +1,5 @@
 import { CookieSerializeOptions } from '@fastify/cookie';
-import { FastifyBaseLogger, FastifyReply } from 'fastify';
+import { FastifyBaseLogger, FastifyReply, FastifyRequest } from 'fastify';
 import jwt, { PrivateKey, PublicKey, Secret, SignOptions, TokenExpiredError } from 'jsonwebtoken';
 import { AccessToken, RefreshToken, TokenType, UserInfo } from './types';
 import { createTokenPayload, extractTokenFromJwt } from './utils';
@@ -55,7 +55,32 @@ export class JwtModule {
     return jwt.sign(payload, this.#secretKey, opts);
   }
 
-  extractToken = (encodedToken: string): (
+  extractAccessToken = ({ headers, cookies }: Pick<FastifyRequest, 'headers' | "cookies">): {
+    token: AccessToken;
+    error?: never
+  } | {
+    token?: never;
+    error: string;
+  } => {
+    let { [TokenType.ACCESS]: encodedToken } = cookies;
+    if (!encodedToken) {
+      encodedToken = headers.authorization
+      if (!encodedToken) return { error: "Access token not setted" }
+    }
+
+    try {
+      const token = this.decodeToken(encodedToken)
+      if (token.type !== TokenType.ACCESS) {
+        return { error: "Unexpected token type: " + token.type }
+      }
+
+      return { token }
+    } catch (e) {
+      return { error: "Wrong token: " + (e instanceof Error ? e.message : String(e)) }
+    }
+  }
+
+  decodeToken = (encodedToken: string): (
     Pick<AccessToken, 'expired'> & { type?: never; userId?: never; }
     | AccessToken | RefreshToken
   ) => {
