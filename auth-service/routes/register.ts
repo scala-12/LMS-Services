@@ -1,6 +1,7 @@
 import { EmailTypebox, PasswordTypebox, RolesTypebox, UsernameTypebox } from '@/constants';
+import { UserRole } from '@/types/users';
 import { prepareString } from '@/utils/common';
-import { createForbiddenError } from '@/utils/exceptions';
+import { createForbiddenError, createUnauthorizedError } from '@/utils/exceptions';
 import { Static, Type } from '@sinclair/typebox';
 import bcrypt from 'bcrypt';
 import { DrizzleQueryError } from 'drizzle-orm';
@@ -22,7 +23,12 @@ export default async function (fastify: FastifyInstance) {
     schema: {
       body: RegisterSchema
     },
-    preValidation: async ({ body }) => {
+    preValidation: async ({ body, ...req }) => {
+      const { error, token } = fastify.jwt.extractAccessToken(req);
+      if (error || !token) throw createUnauthorizedError(error);
+      if (token.expired) throw createUnauthorizedError("Token expired")
+      if (!token.roles.has(UserRole.ADMINISTRATOR)) throw createForbiddenError("Access denied")
+
       if (body.email) {
         body.email.toLowerCase();
       }
