@@ -2,8 +2,8 @@ import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const credentials = pgTable("credentials", {
   userId: uuid("user_id").primaryKey(),
-  email: text("email").notNull().unique(),
-  username: text("username").unique(),
+  email: text("email").unique(),
+  username: text("username").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   roles: text("roles").array().notNull(),

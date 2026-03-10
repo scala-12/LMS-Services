@@ -41,7 +41,7 @@ export class JwtModule {
     const payload = createTokenPayload(user, tokenType);
     if (lifetime != null && lifetime < 0) {
       this.#logger.error({ lifetime }, "Wrong lifitime value")
-      throw new Error("Wrong lifitime value")
+      throw new Error("Wrong lifetime value")
     }
     const opts: SignOptions = {
       algorithm: 'RS256',
@@ -64,7 +64,7 @@ export class JwtModule {
   } => {
     let { [TokenType.ACCESS]: encodedToken } = cookies;
     if (!encodedToken) {
-      encodedToken = headers.authorization
+      encodedToken = headers?.authorization?.split(" ").at(1)
       if (!encodedToken) return { error: "Access token not setted" }
     }
 

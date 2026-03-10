@@ -8,6 +8,13 @@
       "when": 1772903136943,
       "tag": "0000_groovy_nitro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773158791232,
+      "tag": "0001_majestic_vapor",
+      "breakpoints": true
     }
   ]
 }

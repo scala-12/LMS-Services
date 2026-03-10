@@ -8,8 +8,8 @@ import { DrizzleQueryError } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 
 const RegisterSchema = Type.Object({
-  username: Type.Optional(UsernameTypebox),
-  email: EmailTypebox,
+  username: UsernameTypebox,
+  email: Type.Optional(EmailTypebox),
   password: PasswordTypebox,
   roles: RolesTypebox
 })
@@ -23,21 +23,22 @@ export default async function (fastify: FastifyInstance) {
     schema: {
       body: RegisterSchema
     },
-    preValidation: async ({ body, ...req }) => {
+    preValidation: async (req) => {
       const { error, token } = fastify.jwt.extractAccessToken(req);
       if (error || !token) throw createUnauthorizedError(error);
       if (token.expired) throw createUnauthorizedError("Token expired")
       if (!token.roles.has(UserRole.ADMINISTRATOR)) throw createForbiddenError("Access denied")
 
+      const { body } = req
       if (body.email) {
-        body.email.toLowerCase();
+        body.email = body.email.toLowerCase();
       }
       if (body.username) {
-        body.username = prepareString(body.username)!.replaceAll("@", "_").toLocaleLowerCase()
+        body.username = prepareString(body.username)!.replaceAll("@", "_").toLowerCase()
       }
     },
   }, async ({ body }, reply) => {
-    const { username = null, roles, email, password } = body
+    const { username, roles, email = null, password } = body
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
 
     const userData = {
