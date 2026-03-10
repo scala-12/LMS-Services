@@ -64,7 +64,7 @@ export class JwtModule {
   } => {
     let { [TokenType.ACCESS]: encodedToken } = cookies;
     if (!encodedToken) {
-      encodedToken = headers.authorization
+      encodedToken = headers?.authorization?.split(" ").at(1)
       if (!encodedToken) return { error: "Access token not setted" }
     }
 

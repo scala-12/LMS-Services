@@ -8,7 +8,7 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
   if (typeof userId !== 'string') return null;
 
   switch (tokenType) {
-    case 'access':
+    case TokenType.ACCESS:
       {
         if (typeof username !== 'string' ||
           typeof email !== 'string' ||
@@ -22,7 +22,7 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
         };
         return token;
       }
-    case 'refresh':
+    case TokenType.REFRESH:
       {
         const token: RefreshToken = {
           expired, userId,
