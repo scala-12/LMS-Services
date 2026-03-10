@@ -17,7 +17,7 @@ export default async function (fastify: FastifyInstance) {
       if (!oldToken) throw createBadRequiestError("Refresh token not provided");
     }
 
-    const { type: tokenType, expired, userId } = fastify.jwt.extractToken(oldToken);
+    const { type: tokenType, expired, userId } = fastify.jwt.decodeToken(oldToken);
     if (tokenType !== TokenType.REFRESH) {
       fastify.log.debug({ userId }, "Wrong token");
       throw createUnauthorizedError("Wrong token");

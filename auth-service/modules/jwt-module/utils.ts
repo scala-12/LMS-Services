@@ -8,21 +8,21 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
   if (typeof userId !== 'string') return null;
 
   switch (tokenType) {
-    case 'access':
+    case TokenType.ACCESS:
       {
         if (typeof username !== 'string' ||
-          typeof email !== 'string' ||
+          (email != null && typeof email !== 'string') ||
           !Array.isArray(roles) ||
           roles.some(role => typeof role !== 'string')
         ) return null
 
         const token: AccessToken = {
-          expired, userId, username, email, roles,
+          expired, userId, username, email, roles: new Set(roles),
           type: tokenType,
         };
         return token;
       }
-    case 'refresh':
+    case TokenType.REFRESH:
       {
         const token: RefreshToken = {
           expired, userId,
@@ -38,9 +38,9 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
 export const createTokenPayload = (user: UserInfo, tokenType: TokenType): JwtPayload => {
   if (tokenType === TokenType.ACCESS) {
     const { username, roles, email } = user;
-    return { username, roles, email, type: tokenType }
+    return { username, roles: [...roles], email, type: tokenType }
   }
 
   return { type: tokenType }
 }
-type JwtPayload = (UserPayload & { type: TokenType.ACCESS }) | { type: TokenType.REFRESH }
+type JwtPayload = (Omit<UserPayload, 'roles'> & { roles: string[] } & { type: TokenType.ACCESS }) | { type: TokenType.REFRESH }

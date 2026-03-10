@@ -47,7 +47,7 @@ export default async function (fastify: FastifyInstance) {
     preValidation: [prepareAuthBody],
   }, async ({ body }, reply) => {
     const callback = (user: Credential) => {
-      const tokens = fastify.jwt.setJwtCookies(reply, user)
+      const tokens = fastify.jwt.setJwtCookies(reply, { ...user, roles: new Set(user.roles) })
       fastify.db.saveToken(user, tokens[TokenType.REFRESH])
       return tokens
     }
@@ -63,7 +63,7 @@ export default async function (fastify: FastifyInstance) {
     preValidation: [prepareAuthBody]
   }, async ({ body }, reply) => {
     const callback = (user: Credential) => {
-      const accessToken = fastify.jwt.createAccessShortToken(user)
+      const accessToken = fastify.jwt.createAccessShortToken({ ...user, roles: new Set(user.roles) })
       return { [TokenType.ACCESS]: accessToken }
     }
     return signInUser(body, callback, reply)
