@@ -38,9 +38,9 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
 export const createTokenPayload = (user: UserInfo, tokenType: TokenType): JwtPayload => {
   if (tokenType === TokenType.ACCESS) {
     const { username, roles, email } = user;
-    return { username, roles, email, type: tokenType }
+    return { username, roles: [...roles], email, type: tokenType }
   }
 
   return { type: tokenType }
 }
-type JwtPayload = (UserPayload & { type: TokenType.ACCESS }) | { type: TokenType.REFRESH }
+type JwtPayload = (Omit<UserPayload, 'roles'> & { roles: string[] } & { type: TokenType.ACCESS }) | { type: TokenType.REFRESH }
