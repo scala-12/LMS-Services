@@ -1,8 +1,8 @@
 type WithUserId<TData> = TData & { userId: string; }
 
 export type UserPayload = {
-  username: string | null;
-  email: string;
+  username: string;
+  email: string | null;
   roles: Set<string>;
 }
 

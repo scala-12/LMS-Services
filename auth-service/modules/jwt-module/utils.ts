@@ -11,7 +11,7 @@ export const extractTokenFromJwt = (payload: unknown, expired: boolean): AccessT
     case TokenType.ACCESS:
       {
         if (typeof username !== 'string' ||
-          typeof email !== 'string' ||
+          (email != null && typeof email !== 'string') ||
           !Array.isArray(roles) ||
           roles.some(role => typeof role !== 'string')
         ) return null

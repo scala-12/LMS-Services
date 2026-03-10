@@ -8,8 +8,8 @@ import { DrizzleQueryError } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 
 const RegisterSchema = Type.Object({
-  username: Type.Optional(UsernameTypebox),
-  email: EmailTypebox,
+  username: UsernameTypebox,
+  email: Type.Optional(EmailTypebox),
   password: PasswordTypebox,
   roles: RolesTypebox
 })
@@ -38,7 +38,7 @@ export default async function (fastify: FastifyInstance) {
       }
     },
   }, async ({ body }, reply) => {
-    const { username = null, roles, email, password } = body
+    const { username, roles, email = null, password } = body
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
 
     const userData = {
