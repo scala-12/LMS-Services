@@ -41,7 +41,7 @@ export class JwtModule {
     const payload = createTokenPayload(user, tokenType);
     if (lifetime != null && lifetime < 0) {
       this.#logger.error({ lifetime }, "Wrong lifitime value")
-      throw new Error("Wrong lifitime value")
+      throw new Error("Wrong lifetime value")
     }
     const opts: SignOptions = {
       algorithm: 'RS256',
